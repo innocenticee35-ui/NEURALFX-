@@ -1,0 +1,412 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>NEURALFX Trading Platform</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #080b0a;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+header {
+  padding: 20px;
+  border-bottom: 1px solid #202923;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.logo span {
+  color: #00ff88;
+}
+
+.status {
+  color: #00ff88;
+  font-size: 12px;
+}
+
+main {
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
+
+h1 {
+  font-size: 28px;
+}
+
+.subtitle {
+  color: #87938a;
+}
+
+.card {
+  background: #111713;
+  border: 1px solid #26332a;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.balance {
+  font-size: 32px;
+  font-weight: bold;
+  margin: 12px 0;
+}
+
+.green {
+  color: #00ff88;
+}
+
+button {
+  background: #00ff88;
+  color: #07120b;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 18px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #202a23;
+  color: white;
+}
+
+input, select {
+  background: #080b0a;
+  color: white;
+  border: 1px solid #344137;
+  padding: 12px;
+  border-radius: 8px;
+  width: 100%;
+  margin: 8px 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.chart {
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #080b0a;
+  border-radius: 10px;
+  color: #00ff88;
+  text-align: center;
+}
+
+nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 20px 0;
+}
+
+section {
+  margin-bottom: 24px;
+}
+
+footer {
+  text-align: center;
+  color: #69766d;
+  padding: 25px;
+  font-size: 12px;
+}
+
+@media (max-width: 500px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">
+    NEURAL<span>FX</span>
+  </div>
+  <div class="status">● DEMO MODE</div>
+</header>
+
+<main>
+
+<section>
+  <h1>Trading Dashboard</h1>
+  <p class="subtitle">
+    Your market. Your strategy. Your platform.
+  </p>
+</section>
+
+<nav>
+  <button onclick="showSection('dashboard')">Dashboard</button>
+  <button class="secondary"
+  onclick="showSection('markets')">Markets</button>
+  <button class="secondary"
+  onclick="showSection('bot')">NEURALFX BOT</button>
+  <button class="secondary"
+  onclick="showSection('journal')">Journal</button>
+</nav>
+
+<section id="dashboard">
+
+<div class="card">
+  <p class="subtitle">Virtual Account Balance</p>
+  <div class="balance" id="balance">$10,000.00</div>
+  <p class="green">SIMULATED ACCOUNT</p>
+</div>
+
+<div class="grid">
+
+  <div class="card">
+    <p class="subtitle">Virtual Profit / Loss</p>
+    <h2 id="profit">$0.00</h2>
+  </div>
+
+  <div class="card">
+    <p class="subtitle">Bot Status</p>
+    <h2 class="green">Practice</h2>
+  </div>
+
+</div>
+
+</section>
+
+<section id="markets" hidden>
+
+<div class="card">
+  <h2>Market Watch</h2>
+
+  <p>EURUSD <span class="green">Forex</span></p>
+  <p>XAUUSD <span class="green">Gold</span></p>
+  <p>NASDAQ <span class="green">Index</span></p>
+
+  <div class="chart">
+    CHART PLACEHOLDER<br>
+    SIMULATED DATA
+  </div>
+</div>
+
+</section>
+
+<section id="bot" hidden>
+
+<div class="card">
+  <h2>NEURALFX BOT</h2>
+
+  <p class="subtitle">
+    Strategy: Trend + Support/Resistance
+  </p>
+
+  <p>Status: <span id="botStatus">Stopped</span></p>
+
+  <button onclick="toggleBot()">
+    Start / Stop Simulator
+  </button>
+
+  <hr>
+
+  <label>Virtual Trade Amount</label>
+  <input id="amount" type="number"
+  value="100" min="1">
+
+  <button onclick="trade('BUY')">Simulate Buy</button>
+
+  <button class="secondary"
+  onclick="trade('SELL')">Simulate Sell</button>
+
+  <p id="tradeMessage" class="subtitle">
+    No simulated trades yet.
+  </p>
+
+</div>
+
+</section>
+
+<section id="journal" hidden>
+
+<div class="card">
+  <h2>Trading Journal</h2>
+
+  <div id="history">
+    No trades recorded.
+  </div>
+
+  <button class="secondary"
+  onclick="resetAccount()">
+    Reset Simulator
+  </button>
+</div>
+
+</section>
+
+</main>
+
+<footer>
+  NEURALFX V1<br>
+  Educational Trading Simulator
+</footer>
+
+<script>
+
+let balance = 10000;
+let profit = 0;
+let botRunning = false;
+let trades = [];
+
+function updateDashboard() {
+
+  document.getElementById("balance").textContent =
+    "$" + balance.toFixed(2);
+
+  document.getElementById("profit").textContent =
+    "$" + profit.toFixed(2);
+
+}
+
+function showSection(section) {
+
+  ["dashboard", "markets", "bot", "journal"]
+  .forEach(id => {
+
+    document.getElementById(id).hidden =
+      id !== section;
+
+  });
+
+}
+
+function toggleBot() {
+
+  botRunning = !botRunning;
+
+  document.getElementById("botStatus")
+    .textContent = botRunning
+    ? "Simulator Running"
+    : "Stopped";
+
+}
+
+function trade(direction) {
+
+  if (!botRunning) {
+
+    document.getElementById("tradeMessage")
+      .textContent =
+      "Start the simulator first.";
+
+    return;
+
+  }
+
+  const amount = Number(
+    document.getElementById("amount").value
+  );
+
+  if (!Number.isFinite(amount) ||
+      amount <= 0 ||
+      amount > balance) {
+
+    document.getElementById("tradeMessage")
+      .textContent =
+      "Enter a valid amount within your virtual balance.";
+
+    return;
+
+  }
+
+  // Educational simulation only.
+  // No market prices or real orders.
+
+  const result = 0;
+
+  profit += result;
+
+  trades.push({
+    direction: direction,
+    amount: amount,
+    result: result
+  });
+
+  document.getElementById("tradeMessage")
+    .textContent =
+    direction + " simulation recorded.";
+
+  renderHistory();
+  updateDashboard();
+
+}
+
+function renderHistory() {
+
+  const history =
+    document.getElementById("history");
+
+  if (trades.length === 0) {
+
+    history.textContent =
+      "No trades recorded.";
+
+    return;
+
+  }
+
+  history.innerHTML = trades
+    .map((trade, index) => {
+
+      return `
+        <p>
+          Trade ${index + 1}:
+          ${trade.direction}
+          $${trade.amount.toFixed(2)}
+          | Simulated result: $0.00
+        </p>
+      `;
+
+    }).join("");
+
+}
+
+function resetAccount() {
+
+  balance = 10000;
+  profit = 0;
+  trades = [];
+  botRunning = false;
+
+  document.getElementById("botStatus")
+    .textContent = "Stopped";
+
+  renderHistory();
+  updateDashboard();
+
+}
+
+updateDashboard();
+
+</script>
+
+</body>
+</html>
